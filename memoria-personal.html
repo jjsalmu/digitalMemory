@@ -208,6 +208,107 @@
             justify-content: center;
         }
 
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .login-screen.hidden {
+            display: none;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-box h1 {
+            color: #667eea;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .pin-input-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .pin-digit {
+            width: 60px;
+            height: 70px;
+            font-size: 32px;
+            text-align: center;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            font-weight: bold;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        .pin-digit:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .pin-error {
+            color: #f44336;
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        .pin-hint {
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        .close-content-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .close-content-btn:hover {
+            background: #d32f2f;
+        }
+
+        .close-content-btn:active {
+            transform: scale(0.98);
+        }
+
         .card {
             background: white;
             border-radius: 16px;
@@ -543,6 +644,22 @@
     </style>
 </head>
 <body>
+    <!-- Pantalla de Login -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <h1>💾 digiMem</h1>
+            <p>Ingresa el PIN para acceder</p>
+            <div class="pin-input-container">
+                <input type="tel" maxlength="1" class="pin-digit" id="pin1" autocomplete="off">
+                <input type="tel" maxlength="1" class="pin-digit" id="pin2" autocomplete="off">
+                <input type="tel" maxlength="1" class="pin-digit" id="pin3" autocomplete="off">
+                <input type="tel" maxlength="1" class="pin-digit" id="pin4" autocomplete="off">
+            </div>
+            <div class="pin-error" id="pinError"></div>
+            <div class="pin-hint">💡 Pista: Día y mes actual (DDMM)</div>
+        </div>
+    </div>
+
     <!-- Header fijo -->
     <div class="header">
         <h1>💾 digiMem</h1>
@@ -610,6 +727,9 @@
         </div>
 
         <div class="card" id="resultsCard">
+            <button class="close-content-btn hidden" id="closeContentBtn" onclick="closeSearchResults()">
+                ✕ Cerrar contenido
+            </button>
             <h2>Resultados de búsqueda</h2>
             <div id="results">
                 <div class="empty-state">
@@ -790,6 +910,15 @@
         const sideMenu = document.getElementById('sideMenu');
         const menuOverlay = document.getElementById('menuOverlay');
         const newDataModal = document.getElementById('newDataModal');
+        const loginScreen = document.getElementById('loginScreen');
+        const closeContentBtn = document.getElementById('closeContentBtn');
+        const pinInputs = [
+            document.getElementById('pin1'),
+            document.getElementById('pin2'),
+            document.getElementById('pin3'),
+            document.getElementById('pin4')
+        ];
+        const pinError = document.getElementById('pinError');
 
         // Funciones del menú
         function toggleMenu() {
@@ -801,6 +930,73 @@
             sideMenu.classList.remove('active');
             menuOverlay.classList.remove('active');
         }
+
+        // Sistema de Login con PIN
+        function getCorrectPin() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            return day + month;
+        }
+
+        function checkPin() {
+            const enteredPin = pinInputs.map(input => input.value).join('');
+            const correctPin = getCorrectPin();
+            
+            if (enteredPin.length === 4) {
+                if (enteredPin === correctPin) {
+                    // PIN correcto
+                    loginScreen.classList.add('hidden');
+                    pinError.textContent = '';
+                    // Limpiar inputs
+                    pinInputs.forEach(input => input.value = '');
+                } else {
+                    // PIN incorrecto
+                    pinError.textContent = '❌ PIN incorrecto. Intenta de nuevo.';
+                    pinInputs.forEach(input => {
+                        input.value = '';
+                        input.style.borderColor = '#f44336';
+                    });
+                    setTimeout(() => {
+                        pinInputs.forEach(input => input.style.borderColor = '#e0e0e0');
+                    }, 1000);
+                    pinInputs[0].focus();
+                }
+            }
+        }
+
+        // Configurar inputs de PIN
+        pinInputs.forEach((input, index) => {
+            // Auto-focus al siguiente input
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1) {
+                    if (index < 3) {
+                        pinInputs[index + 1].focus();
+                    } else {
+                        checkPin();
+                    }
+                }
+            });
+
+            // Borrar y volver al anterior con backspace
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                    pinInputs[index - 1].focus();
+                }
+            });
+
+            // Solo permitir números
+            input.addEventListener('beforeinput', (e) => {
+                if (e.data && !/^\d$/.test(e.data)) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // Focus inicial en el primer input
+        window.addEventListener('load', () => {
+            pinInputs[0].focus();
+        });
 
         // Funciones del modal
         function openNewDataModal() {
@@ -921,10 +1117,12 @@
             // Si no hay búsqueda, ocultar resultados
             if (!searchQuery.trim()) {
                 resultsCard.classList.add('hidden');
+                closeContentBtn.classList.add('hidden');
                 return;
             }
             
             resultsCard.classList.remove('hidden');
+            closeContentBtn.classList.remove('hidden');
             
             if (items.length === 0) {
                 resultsDiv.innerHTML = `
@@ -956,6 +1154,14 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        // Función para cerrar resultados de búsqueda
+        function closeSearchResults() {
+            searchInput.value = '';
+            suggestionsDropdown.classList.remove('active');
+            document.getElementById('resultsCard').classList.add('hidden');
+            closeContentBtn.classList.add('hidden');
         }
 
         // Función para actualizar estadísticas
