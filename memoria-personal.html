@@ -264,6 +264,8 @@
             font-weight: bold;
             color: #333;
             transition: all 0.3s;
+            -webkit-text-security: disc;
+            text-security: disc;
         }
 
         .pin-digit:focus {
@@ -650,10 +652,10 @@
             <h1>💾 digiMem</h1>
             <p>Ingresa el PIN para acceder</p>
             <div class="pin-input-container">
-                <input type="tel" maxlength="1" class="pin-digit" id="pin1" autocomplete="off">
-                <input type="tel" maxlength="1" class="pin-digit" id="pin2" autocomplete="off">
-                <input type="tel" maxlength="1" class="pin-digit" id="pin3" autocomplete="off">
-                <input type="tel" maxlength="1" class="pin-digit" id="pin4" autocomplete="off">
+                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin1" autocomplete="off">
+                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin2" autocomplete="off">
+                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin3" autocomplete="off">
+                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin4" autocomplete="off">
             </div>
             <div class="pin-error" id="pinError"></div>
             <div class="pin-hint">💡 Pista: Día y mes actual (DDMM)</div>
