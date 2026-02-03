@@ -7,7 +7,7 @@
     <meta name="description" content="Guarda y recuerda tus datos importantes">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>Mi Memoria Personal</title>
+    <title>digiMem</title>
     <style>
         * {
             margin: 0;
@@ -20,6 +20,133 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            padding-top: 80px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-button:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+            transition: right 0.3s ease;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .side-menu.active {
+            right: 0;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1500;
+        }
+
+        .menu-overlay.active {
+            display: block;
+        }
+
+        .menu-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-header h2 {
+            font-size: 20px;
+        }
+
+        .close-menu {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-items {
+            padding: 0;
+        }
+
+        .menu-item {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: background 0.2s;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .menu-item:hover {
+            background: #f8f9ff;
+        }
+
+        .menu-item-icon {
+            font-size: 24px;
+            width: 30px;
+            text-align: center;
         }
 
         .container {
@@ -27,20 +154,58 @@
             margin: 0 auto;
         }
 
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        .header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
+        .modal.active {
+            display: flex;
         }
 
-        .header p {
-            font-size: 16px;
-            opacity: 0.9;
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .card {
@@ -51,7 +216,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
-        .input-section h2 {
+        h2 {
             font-size: 20px;
             color: #333;
             margin-bottom: 16px;
@@ -378,50 +543,74 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🧠 Mi Memoria Personal</h1>
-            <p>Guarda datos y pregúntame cuando los necesites</p>
-        </div>
+    <!-- Header fijo -->
+    <div class="header">
+        <h1>💾 digiMem</h1>
+        <button class="menu-button" onclick="toggleMenu()">☰</button>
+    </div>
 
-        <div class="card">
+    <!-- Overlay del menú -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+
+    <!-- Menú lateral -->
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <h2>Menú</h2>
+            <button class="close-menu" onclick="closeMenu()">×</button>
+        </div>
+        <div class="menu-items">
+            <div class="menu-item" onclick="openNewDataModal()">
+                <span class="menu-item-icon">➕</span>
+                <span>Guardar nuevo dato</span>
+            </div>
+            <div class="menu-item" onclick="exportData(); closeMenu()">
+                <span class="menu-item-icon">📥</span>
+                <span>Exportar datos</span>
+            </div>
+            <div class="menu-item" onclick="document.getElementById('importFile').click(); closeMenu()">
+                <span class="menu-item-icon">📤</span>
+                <span>Importar datos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para nuevo dato -->
+    <div class="modal" id="newDataModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Guardar nuevo dato</h2>
+                <button class="modal-close" onclick="closeNewDataModal()">×</button>
+            </div>
             <div class="success-message" id="successMessage">
                 ✓ Dato guardado correctamente
             </div>
-
-            <div class="input-section">
-                <h2>Guardar nuevo dato</h2>
-                <form id="dataForm">
-                    <div class="form-group">
-                        <label for="topic">Tema o categoría</label>
-                        <input type="text" id="topic" placeholder="Ej: Contraseña WiFi, Receta favorita..." required>
-                    </div>
-                    <div class="form-group">
-                        <label for="data">Información que quieres recordar</label>
-                        <textarea id="data" placeholder="Escribe aquí los datos que quieres guardar..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn">💾 Guardar Dato</button>
-                </form>
-            </div>
+            <form id="dataForm">
+                <div class="form-group">
+                    <label for="topic">Tema o categoría</label>
+                    <input type="text" id="topic" placeholder="Ej: Contraseña WiFi, Receta favorita..." required>
+                </div>
+                <div class="form-group">
+                    <label for="data">Información que quieres recordar</label>
+                    <textarea id="data" placeholder="Escribe aquí los datos que quieres guardar..." required></textarea>
+                </div>
+                <button type="submit" class="btn">💾 Guardar Dato</button>
+            </form>
         </div>
+    </div>
 
+    <div class="container">
         <div class="card search-section">
-            <h2 style="margin-bottom: 16px;">Buscar datos guardados</h2>
+            <h2>Buscar datos guardados</h2>
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Busca por tema o contenido..." autocomplete="off">
                 <span class="search-icon">🔍</span>
                 <div class="suggestions-dropdown" id="suggestionsDropdown"></div>
             </div>
             <div class="stats" id="stats"></div>
-            <div class="action-buttons">
-                <button class="btn-secondary" onclick="exportData()">📥 Exportar Datos</button>
-                <button class="btn-secondary" onclick="document.getElementById('importFile').click()">📤 Importar Datos</button>
-            </div>
-            <input type="file" id="importFile" accept=".json" onchange="importData(event)">
         </div>
 
         <div class="card" id="resultsCard">
-            <h2 style="margin-bottom: 16px;">Resultados de búsqueda</h2>
+            <h2>Resultados de búsqueda</h2>
             <div id="results">
                 <div class="empty-state">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -433,6 +622,8 @@
             </div>
         </div>
     </div>
+
+    <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="display: none;">
 
     <script>
         // Sistema de almacenamiento usando localStorage
@@ -596,6 +787,39 @@
         const resultsDiv = document.getElementById('results');
         const statsDiv = document.getElementById('stats');
         const successMessage = document.getElementById('successMessage');
+        const sideMenu = document.getElementById('sideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const newDataModal = document.getElementById('newDataModal');
+
+        // Funciones del menú
+        function toggleMenu() {
+            sideMenu.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+        }
+
+        function closeMenu() {
+            sideMenu.classList.remove('active');
+            menuOverlay.classList.remove('active');
+        }
+
+        // Funciones del modal
+        function openNewDataModal() {
+            newDataModal.classList.add('active');
+            closeMenu();
+            topicInput.focus();
+        }
+
+        function closeNewDataModal() {
+            newDataModal.classList.remove('active');
+            dataForm.reset();
+        }
+
+        // Cerrar modal al hacer click fuera
+        newDataModal.addEventListener('click', function(event) {
+            if (event.target === newDataModal) {
+                closeNewDataModal();
+            }
+        });
 
         // Función para formatear fecha
         function formatDate(dateString) {
@@ -754,15 +978,14 @@
                 successMessage.style.display = 'block';
                 setTimeout(() => {
                     successMessage.style.display = 'none';
-                }, 3000);
+                    closeNewDataModal();
+                }, 2000);
                 
                 // Limpiar formulario
                 topicInput.value = '';
                 dataInput.value = '';
                 
-                // Actualizar vista
-                searchInput.value = '';
-                displayResults(storage.getAllItems());
+                // Actualizar stats
                 updateStats();
             }
         });

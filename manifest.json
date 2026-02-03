@@ -1,7 +1,7 @@
 {
-  "name": "Mi Memoria Personal",
-  "short_name": "Memoria",
-  "description": "Guarda y recuerda tus datos importantes",
+  "name": "digiMem",
+  "short_name": "digiMem",
+  "description": "Memoria digital para guardar y recordar tus datos",
   "start_url": "memoria-personal.html",
   "display": "standalone",
   "background_color": "#667eea",
