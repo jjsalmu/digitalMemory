@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Guarda y recuerda tus datos importantes">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>digiMem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 80px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-button:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+            transition: right 0.3s ease;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .side-menu.active {
+            right: 0;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1500;
+        }
+
+        .menu-overlay.active {
+            display: block;
+        }
+
+        .menu-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-header h2 {
+            font-size: 20px;
+        }
+
+        .close-menu {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-items {
+            padding: 0;
+        }
+
+        .menu-item {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: background 0.2s;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .menu-item:hover {
+            background: #f8f9ff;
+        }
+
+        .menu-item-icon {
+            font-size: 24px;
+            width: 30px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .login-screen.hidden {
+            display: none;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-box h1 {
+            color: #667eea;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .pin-input-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .pin-digit {
+            width: 60px;
+            height: 70px;
+            font-size: 32px;
+            text-align: center;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            font-weight: bold;
+            color: #333;
+            transition: all 0.3s;
+            -webkit-text-security: disc;
+            text-security: disc;
+        }
+
+        .pin-digit:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .pin-error {
+            color: #f44336;
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        .pin-hint {
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        .close-content-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .close-content-btn:hover {
+            background: #d32f2f;
+        }
+
+        .close-content-btn:active {
+            transform: scale(0.98);
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:hover {
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-section {
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding-right: 50px;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 20px;
+        }
+
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: none;
+        }
+
+        .suggestions-dropdown.active {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: #f8f9ff;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-topic {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .suggestion-preview {
+            font-size: 12px;
+            color: #666;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .suggestion-match {
+            background: #ffeb3b;
+            font-weight: bold;
+            padding: 1px 2px;
+            border-radius: 2px;
+        }
+
+        .no-suggestions {
+            padding: 16px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .suggestions-header {
+            padding: 8px 16px;
+            background: #f0f0ff;
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+            border-bottom: 1px solid #e0e0ff;
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .result-item p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .result-item .date {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .stats {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f0ff;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.98);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .edit-mode {
+            background: #fff9e6;
+            border-left-color: #ffc107;
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-save {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        textarea.edit-textarea {
+            width: 100%;
+            min-height: 80px;
+            margin-top: 8px;
+            padding: 8px;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .highlight {
+            background-color: yellow;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Pantalla de Login -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <h1>💾 digiMem</h1>
+            <p>Ingresa el PIN para acceder</p>
+            <div class="pin-input-container">
+                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin1" autocomplete="off">
+                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin2" autocomplete="off">
+                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin3" autocomplete="off">
+                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin4" autocomplete="off">
+            </div>
+            <div class="pin-error" id="pinError"></div>
+        </div>
+    </div>
+
+    <!-- Header fijo -->
+    <div class="header">
+        <h1>💾 digiMem</h1>
+        <button class="menu-button" onclick="toggleMenu()">☰</button>
+    </div>
+
+    <!-- Overlay del menú -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+
+    <!-- Menú lateral -->
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <h2>Menú</h2>
+            <button class="close-menu" onclick="closeMenu()">×</button>
+        </div>
+        <div class="menu-items">
+            <div class="menu-item" onclick="openNewDataModal()">
+                <span class="menu-item-icon">➕</span>
+                <span>Guardar nuevo dato</span>
+            </div>
+            <div class="menu-item" onclick="exportData(); closeMenu()">
+                <span class="menu-item-icon">📥</span>
+                <span>Exportar datos</span>
+            </div>
+            <div class="menu-item" onclick="document.getElementById('importFile').click(); closeMenu()">
+                <span class="menu-item-icon">📤</span>
+                <span>Importar datos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para nuevo dato -->
+    <div class="modal" id="newDataModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Guardar nuevo dato</h2>
+                <button class="modal-close" onclick="closeNewDataModal()">×</button>
+            </div>
+            <div class="success-message" id="successMessage">
+                ✓ Dato guardado correctamente
+            </div>
+            <form id="dataForm">
+                <div class="form-group">
+                    <label for="topic">Tema o categoría</label>
+                    <input type="text" id="topic" placeholder="Ej: Contraseña WiFi, Receta favorita..." required>
+                </div>
+                <div class="form-group">
+                    <label for="data">Información que quieres recordar</label>
+                    <textarea id="data" placeholder="Escribe aquí los datos que quieres guardar..." required></textarea>
+                </div>
+                <button type="submit" class="btn">💾 Guardar Dato</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card search-section">
+            <h2>Buscar datos guardados</h2>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Busca por tema o contenido..." autocomplete="off">
+                <span class="search-icon">🔍</span>
+                <div class="suggestions-dropdown" id="suggestionsDropdown"></div>
+            </div>
+            <div class="stats" id="stats"></div>
+        </div>
+
+        <div class="card" id="resultsCard">
+            <button class="close-content-btn hidden" id="closeContentBtn" onclick="closeSearchResults()">
+                ✕ Cerrar contenido
+            </button>
+            <h2>Resultados de búsqueda</h2>
+            <div id="results">
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <p>Usa el buscador para ver tus datos guardados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="display: none;">
+
+    <script>
+        // Sistema de almacenamiento usando localStorage
+        class MemoryStorage {
+            constructor() {
+                this.storageKey = 'personalMemory';
+                this.loadData();
+            }
+
+            loadData() {
+                const stored = localStorage.getItem(this.storageKey);
+                this.data = stored ? JSON.parse(stored) : [];
+            }
+
+            saveData() {
+                localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+            }
+
+            addItem(topic, content) {
+                const item = {
+                    id: Date.now(),
+                    topic: topic,
+                    content: content,
+                    date: new Date().toISOString()
+                };
+                this.data.unshift(item);
+                this.saveData();
+                return item;
+            }
+
+            deleteItem(id) {
+                this.data = this.data.filter(item => item.id !== id);
+                this.saveData();
+            }
+
+            // Búsqueda exacta por ID
+            findById(id) {
+                return this.data.find(item => item.id === id);
+            }
+
+            // Búsqueda con puntuación de similitud
+            searchWithScore(query) {
+                if (!query.trim()) {
+                    return [];
+                }
+                
+                const searchTerm = query.toLowerCase();
+                const results = [];
+                
+                this.data.forEach(item => {
+                    const topicLower = item.topic.toLowerCase();
+                    const contentLower = item.content.toLowerCase();
+                    
+                    let score = 0;
+                    let matches = [];
+                    
+                    // Coincidencia exacta en tema (máxima prioridad)
+                    if (topicLower === searchTerm) {
+                        score += 100;
+                        matches.push({ field: 'topic', type: 'exact' });
+                    }
+                    // Tema contiene la búsqueda completa
+                    else if (topicLower.includes(searchTerm)) {
+                        score += 50;
+                        matches.push({ field: 'topic', type: 'contains' });
+                    }
+                    // Palabras individuales del tema
+                    else {
+                        const topicWords = topicLower.split(/\s+/);
+                        topicWords.forEach(word => {
+                            if (word.includes(searchTerm) || searchTerm.includes(word)) {
+                                score += 20;
+                                matches.push({ field: 'topic', type: 'partial', word });
+                            } else if (this.isSimilar(word, searchTerm)) {
+                                score += 10;
+                                matches.push({ field: 'topic', type: 'similar', word });
+                            }
+                        });
+                    }
+                    
+                    // Coincidencia exacta en contenido
+                    if (contentLower.includes(searchTerm)) {
+                        score += 30;
+                        matches.push({ field: 'content', type: 'contains' });
+                    }
+                    // Palabras individuales del contenido
+                    else {
+                        const contentWords = contentLower.split(/\s+/);
+                        contentWords.forEach(word => {
+                            if (word.includes(searchTerm) || searchTerm.includes(word)) {
+                                score += 5;
+                                matches.push({ field: 'content', type: 'partial', word });
+                            } else if (this.isSimilar(word, searchTerm)) {
+                                score += 3;
+                                matches.push({ field: 'content', type: 'similar', word });
+                            }
+                        });
+                    }
+                    
+                    if (score > 0) {
+                        results.push({
+                            item: item,
+                            score: score,
+                            matches: matches
+                        });
+                    }
+                });
+                
+                // Ordenar por puntuación descendente
+                results.sort((a, b) => b.score - a.score);
+                
+                return results;
+            }
+
+            // Verificar similitud entre palabras (distancia de Levenshtein simplificada)
+            isSimilar(word1, word2) {
+                if (word1.length < 3 || word2.length < 3) return false;
+                
+                const maxLen = Math.max(word1.length, word2.length);
+                const minLen = Math.min(word1.length, word2.length);
+                
+                // Si la diferencia de longitud es muy grande, no son similares
+                if (maxLen - minLen > 2) return false;
+                
+                // Contar caracteres comunes
+                let common = 0;
+                for (let i = 0; i < minLen; i++) {
+                    if (word1[i] === word2[i]) common++;
+                }
+                
+                // Si más del 60% de caracteres coinciden, son similares
+                return (common / maxLen) > 0.6;
+            }
+
+            search(query) {
+                if (!query.trim()) {
+                    return this.data;
+                }
+                
+                const searchTerm = query.toLowerCase();
+                return this.data.filter(item => 
+                    item.topic.toLowerCase().includes(searchTerm) ||
+                    item.content.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            getAllItems() {
+                return this.data;
+            }
+        }
+
+        // Inicializar almacenamiento
+        const storage = new MemoryStorage();
+
+        // Referencias a elementos del DOM
+        const dataForm = document.getElementById('dataForm');
+        const topicInput = document.getElementById('topic');
+        const dataInput = document.getElementById('data');
+        const searchInput = document.getElementById('searchInput');
+        const suggestionsDropdown = document.getElementById('suggestionsDropdown');
+        const resultsDiv = document.getElementById('results');
+        const statsDiv = document.getElementById('stats');
+        const successMessage = document.getElementById('successMessage');
+        const sideMenu = document.getElementById('sideMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const newDataModal = document.getElementById('newDataModal');
+        const loginScreen = document.getElementById('loginScreen');
+        const closeContentBtn = document.getElementById('closeContentBtn');
+        const pinInputs = [
+            document.getElementById('pin1'),
+            document.getElementById('pin2'),
+            document.getElementById('pin3'),
+            document.getElementById('pin4')
+        ];
+        const pinError = document.getElementById('pinError');
+
+        // Funciones del menú
+        function toggleMenu() {
+            sideMenu.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+        }
+
+        function closeMenu() {
+            sideMenu.classList.remove('active');
+            menuOverlay.classList.remove('active');
+        }
+
+        // Sistema de Login con PIN
+        function getCorrectPin() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            return day + month;
+        }
+
+        function checkPin() {
+            const enteredPin = pinInputs.map(input => input.value).join('');
+            const correctPin = getCorrectPin();
+            
+            if (enteredPin.length === 4) {
+                if (enteredPin === correctPin) {
+                    // PIN correcto
+                    loginScreen.classList.add('hidden');
+                    pinError.textContent = '';
+                    // Limpiar inputs
+                    pinInputs.forEach(input => input.value = '');
+                } else {
+                    // PIN incorrecto
+                    pinError.textContent = '❌ PIN incorrecto. Intenta de nuevo.';
+                    pinInputs.forEach(input => {
+                        input.value = '';
+                        input.style.borderColor = '#f44336';
+                    });
+                    setTimeout(() => {
+                        pinInputs.forEach(input => input.style.borderColor = '#e0e0e0');
+                    }, 1000);
+                    pinInputs[0].focus();
+                }
+            }
+        }
+
+        // Configurar inputs de PIN
+        pinInputs.forEach((input, index) => {
+            // Auto-focus al siguiente input
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1) {
+                    if (index < 3) {
+                        pinInputs[index + 1].focus();
+                    } else {
+                        checkPin();
+                    }
+                }
+            });
+
+            // Borrar y volver al anterior con backspace
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                    pinInputs[index - 1].focus();
+                }
+            });
+
+            // Solo permitir números
+            input.addEventListener('beforeinput', (e) => {
+                if (e.data && !/^\d$/.test(e.data)) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // Focus inicial en el primer input
+        window.addEventListener('load', () => {
+            pinInputs[0].focus();
+        });
+
+        // Funciones del modal
+        function openNewDataModal() {
+            newDataModal.classList.add('active');
+            closeMenu();
+            topicInput.focus();
+        }
+
+        function closeNewDataModal() {
+            newDataModal.classList.remove('active');
+            dataForm.reset();
+        }
+
+        // Cerrar modal al hacer click fuera
+        newDataModal.addEventListener('click', function(event) {
+            if (event.target === newDataModal) {
+                closeNewDataModal();
+            }
+        });
+
+        // Función para formatear fecha
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Hace un momento';
+            if (diffMins < 60) return `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
+            if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+            if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+            
+            return date.toLocaleDateString('es-ES', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Función para resaltar texto de búsqueda
+        function highlightText(text, query) {
+            if (!query.trim()) return text;
+            
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        // Función para resaltar coincidencias en sugerencias
+        function highlightMatches(text, query) {
+            if (!query.trim()) return text;
+            
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span class="suggestion-match">$1</span>');
+        }
+
+        // Función para mostrar sugerencias
+        function showSuggestions(query) {
+            if (!query.trim()) {
+                suggestionsDropdown.classList.remove('active');
+                return;
+            }
+
+            const results = storage.searchWithScore(query);
+            
+            if (results.length === 0) {
+                suggestionsDropdown.innerHTML = '<div class="no-suggestions">No se encontraron coincidencias</div>';
+                suggestionsDropdown.classList.add('active');
+                return;
+            }
+
+            // Mostrar máximo 8 sugerencias
+            const topResults = results.slice(0, 8);
+            
+            let html = '<div class="suggestions-header">📝 ' + topResults.length + ' coincidencia(s) encontrada(s)</div>';
+            
+            topResults.forEach(result => {
+                const item = result.item;
+                
+                html += `
+                    <div class="suggestion-item" onclick="selectSuggestion(${item.id})">
+                        <div class="suggestion-topic">${highlightMatches(item.topic, query)}</div>
+                    </div>
+                `;
+            });
+            
+            suggestionsDropdown.innerHTML = html;
+            suggestionsDropdown.classList.add('active');
+        }
+
+        // Función para seleccionar una sugerencia
+        function selectSuggestion(id) {
+            const item = storage.findById(id);
+            if (!item) return;
+            
+            // Ocultar dropdown
+            suggestionsDropdown.classList.remove('active');
+            
+            // Actualizar input con el tema
+            searchInput.value = item.topic;
+            
+            // Mostrar solo el item seleccionado
+            displayResults([item], item.topic);
+        }
+
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.search-box')) {
+                suggestionsDropdown.classList.remove('active');
+            }
+        });
+
+        // Función para mostrar resultados
+        function displayResults(items, searchQuery = '') {
+            const resultsCard = document.getElementById('resultsCard');
+            
+            // Si no hay búsqueda, ocultar resultados
+            if (!searchQuery.trim()) {
+                resultsCard.classList.add('hidden');
+                closeContentBtn.classList.add('hidden');
+                return;
+            }
+            
+            resultsCard.classList.remove('hidden');
+            closeContentBtn.classList.remove('hidden');
+            
+            if (items.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <p>No se encontraron resultados para "${searchQuery}"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsDiv.innerHTML = items.map(item => `
+                <div class="result-item" id="item-${item.id}">
+                    <h3>${highlightText(item.topic, searchQuery)}</h3>
+                    <p id="content-${item.id}">${highlightText(item.content, searchQuery)}</p>
+                    <textarea class="edit-textarea hidden" id="edit-${item.id}">${item.content}</textarea>
+                    <div class="date">${formatDate(item.date)}</div>
+                    <div class="edit-buttons" id="buttons-${item.id}">
+                        <button class="btn-small" style="background: #667eea; color: white;" onclick="editItem(${item.id})">✏️ Editar</button>
+                        <button class="delete-btn" onclick="deleteItem(${item.id})">🗑️ Eliminar</button>
+                    </div>
+                    <div class="edit-buttons hidden" id="save-buttons-${item.id}">
+                        <button class="btn-small btn-save" onclick="saveEdit(${item.id})">💾 Guardar</button>
+                        <button class="btn-small btn-cancel" onclick="cancelEdit(${item.id})">❌ Cancelar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Función para cerrar resultados de búsqueda
+        function closeSearchResults() {
+            searchInput.value = '';
+            suggestionsDropdown.classList.remove('active');
+            document.getElementById('resultsCard').classList.add('hidden');
+            closeContentBtn.classList.add('hidden');
+        }
+
+        // Función para actualizar estadísticas
+        function updateStats() {
+            const total = storage.getAllItems().length;
+            statsDiv.textContent = `${total} dato${total !== 1 ? 's' : ''} guardado${total !== 1 ? 's' : ''}`;
+        }
+
+        // Guardar nuevo dato
+        dataForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const topic = topicInput.value.trim();
+            const content = dataInput.value.trim();
+            
+            if (topic && content) {
+                storage.addItem(topic, content);
+                
+                // Mostrar mensaje de éxito
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                    closeNewDataModal();
+                }, 2000);
+                
+                // Limpiar formulario
+                topicInput.value = '';
+                dataInput.value = '';
+                
+                // Actualizar stats
+                updateStats();
+            }
+        });
+
+        // Buscar datos - mostrar sugerencias mientras se escribe
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value;
+            showSuggestions(query);
+        });
+
+        // Al presionar Enter, buscar directamente
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value;
+                if (query.trim()) {
+                    suggestionsDropdown.classList.remove('active');
+                    const results = storage.search(query);
+                    displayResults(results, query);
+                }
+            }
+        });
+
+        // Eliminar dato
+        function deleteItem(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este dato?')) {
+                storage.deleteItem(id);
+                const query = searchInput.value;
+                const results = storage.search(query);
+                displayResults(results, query);
+                updateStats();
+            }
+        }
+
+        // Editar dato
+        function editItem(id) {
+            const itemDiv = document.getElementById(`item-${id}`);
+            const contentP = document.getElementById(`content-${id}`);
+            const editTextarea = document.getElementById(`edit-${id}`);
+            const normalButtons = document.getElementById(`buttons-${id}`);
+            const saveButtons = document.getElementById(`save-buttons-${id}`);
+            
+            itemDiv.classList.add('edit-mode');
+            contentP.classList.add('hidden');
+            editTextarea.classList.remove('hidden');
+            normalButtons.classList.add('hidden');
+            saveButtons.classList.remove('hidden');
+            editTextarea.focus();
+        }
+
+        // Guardar edición
+        function saveEdit(id) {
+            const editTextarea = document.getElementById(`edit-${id}`);
+            const newContent = editTextarea.value.trim();
+            
+            if (!newContent) {
+                alert('El contenido no puede estar vacío');
+                return;
+            }
+            
+            // Actualizar en el almacenamiento
+            const item = storage.data.find(i => i.id === id);
+            if (item) {
+                item.content = newContent;
+                storage.saveData();
+                
+                // Mostrar mensaje de éxito
+                successMessage.textContent = '✓ Dato actualizado correctamente';
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+                
+                // Refrescar vista
+                const query = searchInput.value;
+                const results = storage.search(query);
+                displayResults(results, query);
+            }
+        }
+
+        // Cancelar edición
+        function cancelEdit(id) {
+            const query = searchInput.value;
+            const results = storage.search(query);
+            displayResults(results, query);
+        }
+
+        // Exportar datos
+        function exportData() {
+            const dataStr = JSON.stringify(storage.getAllItems(), null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `memoria-personal-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            successMessage.textContent = '✓ Datos exportados correctamente';
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // Importar datos
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(importedData)) {
+                        throw new Error('Formato de archivo inválido');
+                    }
+                    
+                    const confirmMsg = `¿Quieres reemplazar tus datos actuales (${storage.data.length} items) con los importados (${importedData.length} items)?\n\nElige:\n- OK para REEMPLAZAR todos los datos\n- Cancelar para AGREGAR a los datos existentes`;
+                    
+                    if (confirm(confirmMsg)) {
+                        // Reemplazar
+                        storage.data = importedData;
+                    } else {
+                        // Agregar
+                        importedData.forEach(item => {
+                            // Asignar nuevos IDs para evitar conflictos
+                            item.id = Date.now() + Math.random();
+                            storage.data.unshift(item);
+                        });
+                    }
+                    
+                    storage.saveData();
+                    
+                    successMessage.textContent = `✓ ${importedData.length} datos importados correctamente`;
+                    successMessage.style.display = 'block';
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 3000);
+                    
+                    updateStats();
+                    searchInput.value = '';
+                    document.getElementById('resultsCard').classList.add('hidden');
+                    
+                } catch (error) {
+                    alert('Error al importar el archivo: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Limpiar el input
+            event.target.value = '';
+        }
+
+        // Cargar datos iniciales
+        updateStats();
+        
+        // Ocultar la tarjeta de resultados inicialmente
+        document.getElementById('resultsCard').classList.add('hidden');
+
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registrado'))
+                    .catch(err => console.log('Error al registrar SW:', err));
+            });
+        }
+    </script>
+</body>
+</html>

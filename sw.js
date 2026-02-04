@@ -1,6 +1,6 @@
 const CACHE_NAME = 'memoria-personal-v1';
 const urlsToCache = [
-  'memoria-personal.html',
+  'digiMem.html',
   'manifest.json'
 ];
 

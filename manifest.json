@@ -2,7 +2,7 @@
   "name": "digiMem",
   "short_name": "digiMem",
   "description": "Memoria digital para guardar y recordar tus datos",
-  "start_url": "memoria-personal.html",
+  "start_url": "digiMem.html",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
