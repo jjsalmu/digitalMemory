@@ -299,8 +299,10 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            margin-bottom: 16px;
+            margin-top: 16px;
             transition: all 0.3s;
+            width: 100%;
+            justify-content: center;
         }
 
         .close-content-btn:hover {
@@ -518,9 +520,9 @@
             background: #dc3545;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-size: 12px;
             cursor: pointer;
             transition: background 0.3s;
             font-weight: 600;
@@ -588,15 +590,15 @@
 
         .edit-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-top: 12px;
             flex-wrap: wrap;
         }
 
         .btn-small {
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-size: 12px;
             cursor: pointer;
             border: none;
             font-weight: 600;
@@ -767,9 +769,6 @@
         </div>
 
         <div class="card" id="resultsCard">
-            <button class="close-content-btn hidden" id="closeContentBtn" onclick="closeSearchResults()">
-                ✕ Cerrar contenido
-            </button>
             <div id="results">
                 <div class="empty-state">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -779,6 +778,9 @@
                     <p>Usa el buscador para ver tus datos guardados</p>
                 </div>
             </div>
+            <button class="close-content-btn hidden" id="closeContentBtn" onclick="closeSearchResults()">
+                ✕ Cerrar contenido
+            </button>
         </div>
     </div>
 
