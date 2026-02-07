@@ -4,6 +4,31 @@ Historial de cambios y versiones de la aplicación.
 
 ---
 
+## [v0.9] - 2026-02-06
+
+### 🔧 Mejoras de UI/UX
+- **Optimización del cuadro de contenido**
+  - Reducido padding a 10px (antes 20px)
+  - Interlineado ajustado a 1 (antes 1.8)
+  - Mejora en la densidad de información mostrada
+
+- **Botones de acción rediseñados**
+  - Botones Editar/Eliminar/Guardar/Cancelar más pequeños
+  - Padding reducido: 6px 14px (antes 10px 20px)
+  - Font-size: 12px (antes 14px)
+  - Diseño más discreto y profesional
+
+- **Reposicionamiento del botón "Cerrar contenido"**
+  - Movido a la parte inferior (después de los resultados)
+  - Ancho completo para mejor accesibilidad
+  - Centrado horizontalmente
+
+### 📋 Otros cambios
+- Sistema de versionado implementado
+- Versión visible en: título, header y menú
+
+---
+
 ## [v0.8] - 2026-02-06
 
 ### ✨ Características principales
@@ -76,15 +101,13 @@ Versiones en desarrollo: v0.x (beta)
 
 ## Próximas versiones planificadas
 
-### v0.9 (próxima)
-- [ ] Categorías/etiquetas para organizar datos
-- [ ] Búsqueda por fecha
-- [ ] Modo oscuro
-
-### v1.0 (primera versión estable)
+### v1.0 (próxima - primera versión estable)
 - [ ] Todas las características básicas estabilizadas
 - [ ] Documentación completa
 - [ ] Testing exhaustivo
+- [ ] Categorías/etiquetas para organizar datos
+- [ ] Búsqueda por fecha
+- [ ] Modo oscuro
 
 ---
 
