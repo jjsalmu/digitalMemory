@@ -7,7 +7,7 @@
     <meta name="description" content="Guarda y recuerda tus datos importantes">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>digiMem v0.9</title>
+    <title>digiMem v1.0</title>
     <style>
         * {
             margin: 0;
@@ -150,8 +150,9 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 100%;
             margin: 0 auto;
+            padding: 0 10px;
         }
 
         .modal {
@@ -384,6 +385,9 @@
 
         .search-section {
             margin-bottom: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .search-box {
@@ -700,7 +704,7 @@
 
     <!-- Header fijo -->
     <div class="header">
-        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v0.9</span></h1>
+        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.0</span></h1>
         <button class="menu-button" onclick="toggleMenu()">☰</button>
     </div>
 
@@ -728,7 +732,7 @@
             </div>
             <div style="padding: 20px; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 20px;">
                 <p style="color: #999; font-size: 12px; margin-bottom: 5px;">digiMem</p>
-                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v0.9</p>
+                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.0</p>
             </div>
         </div>
     </div>
@@ -788,7 +792,7 @@
 
     <script>
         // Versión de la aplicación
-        const APP_VERSION = 'v0.9';
+        const APP_VERSION = 'v1.0';
         
         // Sistema de almacenamiento usando localStorage
         class MemoryStorage {
