@@ -7,7 +7,7 @@
     <meta name="description" content="Guarda y recuerda tus datos importantes">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>digiMem v1.0</title>
+    <title>digiMem v1.01</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 5px;
             padding-top: 80px;
         }
 
@@ -152,7 +152,7 @@
         .container {
             max-width: 100%;
             margin: 0 auto;
-            padding: 0 10px;
+            padding: 0 5px;
         }
 
         .modal {
@@ -317,9 +317,13 @@
         .card {
             background: white;
             border-radius: 16px;
-            padding: 24px;
+            padding: 12px;
             margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        #resultsCard {
+            padding: 8px;
         }
 
         h2 {
@@ -486,7 +490,7 @@
 
         .result-item {
             background: #f8f9fa;
-            padding: 20px;
+            padding: 10px;
             border-radius: 8px;
             margin-bottom: 12px;
             border-left: 4px solid #667eea;
@@ -511,6 +515,8 @@
             border: 1px solid #e0e0e0;
             min-height: 150px;
             font-family: 'Courier New', Courier, monospace;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .result-item .date {
@@ -704,7 +710,7 @@
 
     <!-- Header fijo -->
     <div class="header">
-        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.0</span></h1>
+        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.01</span></h1>
         <button class="menu-button" onclick="toggleMenu()">☰</button>
     </div>
 
@@ -732,7 +738,7 @@
             </div>
             <div style="padding: 20px; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 20px;">
                 <p style="color: #999; font-size: 12px; margin-bottom: 5px;">digiMem</p>
-                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.0</p>
+                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.01</p>
             </div>
         </div>
     </div>
@@ -792,7 +798,7 @@
 
     <script>
         // Versión de la aplicación
-        const APP_VERSION = 'v1.0';
+        const APP_VERSION = 'v1.01';
         
         // Sistema de almacenamiento usando localStorage
         class MemoryStorage {
