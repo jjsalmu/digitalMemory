@@ -4,6 +4,64 @@ Historial de cambios y versiones de la aplicación.
 
 ---
 
+## [v1.02] - 2026-02-09
+
+### 🎯 Mejora de interfaz de edición
+
+**Objetivo:** Simplificar y limpiar la interfaz durante la visualización y edición de datos.
+
+**Cambios implementados:**
+
+#### Modo visualización (normal)
+- ✅ Solo se muestran 2 botones: **Editar** y **Eliminar**
+- ✅ Fecha visible debajo del contenido
+- ✅ Interfaz limpia y sin distracciones
+
+#### Modo edición (al editar)
+- ✅ Solo se muestran 2 botones: **Guardar** y **Cancelar**
+- ✅ Fecha oculta temporalmente
+- ✅ Foco en la tarea de edición
+- ✅ Menos elementos en pantalla = menos confusión
+
+**Beneficios:**
+- 🎨 Interfaz más limpia y profesional
+- 🎯 Usuario ve solo las opciones relevantes
+- ✨ Mejor experiencia de uso (UX)
+- 📱 Menos elementos en pantalla móvil
+
+**Implementación técnica:**
+- Botones separados en dos grupos (normal/edición)
+- Uso de clase `.hidden` para alternar visibilidad
+- ID único para fecha permite ocultarla durante edición
+
+---
+
+## [v1.01] - 2026-02-09
+
+### 🎨 Optimización de espacio en pantalla
+
+**Problema resuelto:** El contenido no aprovechaba todo el ancho de la pantalla disponible.
+
+**Cambios implementados:**
+- **Body padding:** 20px → 5px (ganancia: ~30px)
+- **Container padding:** 10px → 5px (ganancia: ~10px)
+- **Card padding:** 24px → 12px general / 8px para resultados (ganancia: ~32px)
+- **Result-item padding:** 20px → 10px (ganancia: ~20px)
+- **Contenido párrafo:** Añadido `width: 100%` y `box-sizing: border-box`
+
+**Resultado:**
+- ✅ 92px adicionales de ancho en dispositivos de 360px
+- ✅ 38% más espacio para el contenido
+- ✅ Mejor aprovechamiento de pantallas móviles
+- ✅ Texto visible en casi todo el ancho disponible
+
+### 📊 Impacto visual
+Antes: ~238px para contenido  
+Ahora: ~330px para contenido  
+Mejora: +38% de espacio útil
+
+---
+
 ## [v1.0] - 2026-02-06 🎉 PRIMERA VERSIÓN ESTABLE
 
 ### 🎊 Hitos alcanzados

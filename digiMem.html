@@ -7,7 +7,7 @@
     <meta name="description" content="Guarda y recuerda tus datos importantes">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>digiMem v1.01</title>
+    <title>digiMem v1.02</title>
     <style>
         * {
             margin: 0;
@@ -710,7 +710,7 @@
 
     <!-- Header fijo -->
     <div class="header">
-        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.01</span></h1>
+        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.02</span></h1>
         <button class="menu-button" onclick="toggleMenu()">☰</button>
     </div>
 
@@ -738,7 +738,7 @@
             </div>
             <div style="padding: 20px; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 20px;">
                 <p style="color: #999; font-size: 12px; margin-bottom: 5px;">digiMem</p>
-                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.01</p>
+                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.02</p>
             </div>
         </div>
     </div>
@@ -798,7 +798,7 @@
 
     <script>
         // Versión de la aplicación
-        const APP_VERSION = 'v1.01';
+        const APP_VERSION = 'v1.02';
         
         // Sistema de almacenamiento usando localStorage
         class MemoryStorage {
@@ -1197,7 +1197,7 @@
                     <h3>${highlightText(item.topic, searchQuery)}</h3>
                     <p id="content-${item.id}">${highlightText(item.content, searchQuery)}</p>
                     <textarea class="edit-textarea hidden" id="edit-${item.id}">${item.content}</textarea>
-                    <div class="date">${formatDate(item.date)}</div>
+                    <div class="date" id="date-${item.id}">${formatDate(item.date)}</div>
                     <div class="edit-buttons" id="buttons-${item.id}">
                         <button class="btn-small btn-edit" onclick="editItem(${item.id})">✏️ Editar</button>
                         <button class="btn-small delete-btn" onclick="deleteItem(${item.id})">🗑️ Eliminar</button>
@@ -1284,12 +1284,14 @@
             const itemDiv = document.getElementById(`item-${id}`);
             const contentP = document.getElementById(`content-${id}`);
             const editTextarea = document.getElementById(`edit-${id}`);
+            const dateDiv = document.getElementById(`date-${id}`);
             const normalButtons = document.getElementById(`buttons-${id}`);
             const saveButtons = document.getElementById(`save-buttons-${id}`);
             
             itemDiv.classList.add('edit-mode');
             contentP.classList.add('hidden');
             editTextarea.classList.remove('hidden');
+            dateDiv.classList.add('hidden');
             normalButtons.classList.add('hidden');
             saveButtons.classList.remove('hidden');
             editTextarea.focus();
