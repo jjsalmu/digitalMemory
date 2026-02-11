@@ -7,7 +7,7 @@
     <meta name="description" content="Guarda y recuerda tus datos importantes">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>digiMem v1.02</title>
+    <title>digiMem v1.02.1</title>
     <style>
         * {
             margin: 0;
@@ -593,6 +593,10 @@
             display: none;
         }
 
+        .edit-buttons.hidden {
+            display: none !important;
+        }
+
         .edit-mode {
             background: #fff9e6;
             border-left-color: #ffc107;
@@ -710,7 +714,7 @@
 
     <!-- Header fijo -->
     <div class="header">
-        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.02</span></h1>
+        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.02.1</span></h1>
         <button class="menu-button" onclick="toggleMenu()">☰</button>
     </div>
 
@@ -738,7 +742,7 @@
             </div>
             <div style="padding: 20px; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 20px;">
                 <p style="color: #999; font-size: 12px; margin-bottom: 5px;">digiMem</p>
-                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.02</p>
+                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.02.1</p>
             </div>
         </div>
     </div>
@@ -798,7 +802,7 @@
 
     <script>
         // Versión de la aplicación
-        const APP_VERSION = 'v1.02';
+        const APP_VERSION = 'v1.02.1';
         
         // Sistema de almacenamiento usando localStorage
         class MemoryStorage {

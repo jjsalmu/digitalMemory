@@ -4,6 +4,31 @@ Historial de cambios y versiones de la aplicación.
 
 ---
 
+## [v1.02.1] - 2026-02-09
+
+### 🐛 Corrección crítica (Hotfix)
+
+**Problema identificado:** Los botones de edición se mostraban todos simultáneamente en lugar de alternar entre modos.
+
+**Causa raíz:** Conflicto de especificidad CSS entre `.edit-buttons { display: flex }` y `.hidden { display: none }`
+
+**Solución implementada:**
+```css
+.edit-buttons.hidden {
+    display: none !important;
+}
+```
+
+**Resultado:**
+- ✅ Modo normal: Solo "Editar" y "Eliminar" visibles
+- ✅ Modo edición: Solo "Guardar" y "Cancelar" visibles
+- ✅ Alternancia correcta entre modos
+- ✅ Comportamiento ahora funciona como se diseñó en v1.02
+
+**Tipo de release:** Hotfix (corrección de bug crítico)
+
+---
+
 ## [v1.02] - 2026-02-09
 
 ### 🎯 Mejora de interfaz de edición
