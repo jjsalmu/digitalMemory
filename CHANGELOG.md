@@ -4,6 +4,21 @@ Historial de cambios y versiones de la aplicación.
 
 ---
 
+## [v1.03.1] - 2026-10-16
+
+### 🐛 Corrección: PIN oculto con asteriscos
+
+**Problema:** el campo del PIN usaba `type="password"`, que muestra puntos (●) en lugar de asteriscos y, en Android, deja visible el último dígito un instante antes de ocultarlo.
+
+**Solución:**
+- Los campos pasan a ser de texto numérico y en pantalla se escribe siempre un `*`
+- El dígito real se guarda solo en memoria (`pinValues`); nunca aparece en el campo
+- Al corregir un dígito, el nuevo sustituye al anterior (sin acumular asteriscos)
+- Se admite pegar el PIN completo y el retroceso en teclados móviles
+- Ya no aparece el aviso del navegador para guardar contraseñas
+
+---
+
 ## [v1.03] - 2026-10-16
 
 ### ☁️ Sincronización con GitHub

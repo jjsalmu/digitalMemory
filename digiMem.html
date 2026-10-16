@@ -7,7 +7,7 @@
     <meta name="description" content="Guarda y recuerda tus datos importantes">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>digiMem v1.03</title>
+    <title>digiMem v1.03.1</title>
     <style>
         * {
             margin: 0;
@@ -265,8 +265,7 @@
             font-weight: bold;
             color: #333;
             transition: all 0.3s;
-            -webkit-text-security: disc;
-            text-security: disc;
+            caret-color: transparent;
         }
 
         .pin-digit:focus {
@@ -810,10 +809,10 @@
             <h1>💾 digiMem</h1>
             <p>Ingresa el PIN para acceder</p>
             <div class="pin-input-container">
-                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin1" autocomplete="off">
-                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin2" autocomplete="off">
-                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin3" autocomplete="off">
-                <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit" id="pin4" autocomplete="off">
+                <input type="text" inputmode="numeric" class="pin-digit" id="pin1" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Dígito 1 del PIN">
+                <input type="text" inputmode="numeric" class="pin-digit" id="pin2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Dígito 2 del PIN">
+                <input type="text" inputmode="numeric" class="pin-digit" id="pin3" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Dígito 3 del PIN">
+                <input type="text" inputmode="numeric" class="pin-digit" id="pin4" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Dígito 4 del PIN">
             </div>
             <div class="pin-error" id="pinError"></div>
         </div>
@@ -821,7 +820,7 @@
 
     <!-- Header fijo -->
     <div class="header">
-        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.03</span></h1>
+        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.03.1</span></h1>
         <button class="menu-button" onclick="toggleMenu()">☰</button>
     </div>
 
@@ -853,7 +852,7 @@
             </div>
             <div style="padding: 20px; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 20px;">
                 <p style="color: #999; font-size: 12px; margin-bottom: 5px;">digiMem</p>
-                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.03</p>
+                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.03.1</p>
             </div>
         </div>
     </div>
@@ -975,7 +974,7 @@
 
     <script>
         // Versión de la aplicación
-        const APP_VERSION = 'v1.03';
+        const APP_VERSION = 'v1.03.1';
         
         // Sistema de almacenamiento usando localStorage
         class MemoryStorage {
@@ -1179,57 +1178,92 @@
             return day + month;
         }
 
+        // Dígitos reales del PIN: nunca se muestran en pantalla
+        const pinValues = ['', '', '', ''];
+
+        function resetPin() {
+            pinValues.fill('');
+            pinInputs.forEach(input => { input.value = ''; });
+        }
+
+        function setPinDigit(index, digit) {
+            pinValues[index] = digit;
+            pinInputs[index].value = digit ? '*' : '';
+        }
+
         function checkPin() {
-            const enteredPin = pinInputs.map(input => input.value).join('');
-            const correctPin = getCorrectPin();
-            
-            if (enteredPin.length === 4) {
-                if (enteredPin === correctPin) {
-                    // PIN correcto
-                    loginScreen.classList.add('hidden');
-                    pinError.textContent = '';
-                    if (GitSync.cfg.auto && GitSync.configured()) GitSync.sync(false);
-                    // Limpiar inputs
-                    pinInputs.forEach(input => input.value = '');
-                } else {
-                    // PIN incorrecto
-                    pinError.textContent = '❌ PIN incorrecto. Intenta de nuevo.';
-                    pinInputs.forEach(input => {
-                        input.value = '';
-                        input.style.borderColor = '#f44336';
-                    });
-                    setTimeout(() => {
-                        pinInputs.forEach(input => input.style.borderColor = '#e0e0e0');
-                    }, 1000);
-                    pinInputs[0].focus();
-                }
+            const enteredPin = pinValues.join('');
+            if (enteredPin.length !== 4) return;
+
+            if (enteredPin === getCorrectPin()) {
+                // PIN correcto
+                loginScreen.classList.add('hidden');
+                pinError.textContent = '';
+                if (GitSync.cfg.auto && GitSync.configured()) GitSync.sync(false);
+                resetPin();
+                document.activeElement.blur();
+            } else {
+                // PIN incorrecto
+                pinError.textContent = '❌ PIN incorrecto. Intenta de nuevo.';
+                resetPin();
+                pinInputs.forEach(input => { input.style.borderColor = '#f44336'; });
+                setTimeout(() => {
+                    pinInputs.forEach(input => { input.style.borderColor = '#e0e0e0'; });
+                }, 1000);
+                pinInputs[0].focus();
             }
         }
 
         // Configurar inputs de PIN
         pinInputs.forEach((input, index) => {
-            // Auto-focus al siguiente input
-            input.addEventListener('input', (e) => {
-                if (e.target.value.length === 1) {
-                    if (index < 3) {
-                        pinInputs[index + 1].focus();
-                    } else {
-                        checkPin();
-                    }
-                }
-            });
+            // Al enfocar, seleccionar el contenido para que el siguiente dígito lo sustituya
+            input.addEventListener('focus', () => input.select());
 
-            // Borrar y volver al anterior con backspace
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+            // Solo permitir números; y retroceso en teclados móviles (donde keydown no es fiable)
+            input.addEventListener('beforeinput', (e) => {
+                if (e.data && !/^\d+$/.test(e.data)) {
+                    e.preventDefault();
+                    return;
+                }
+                if (e.inputType === 'deleteContentBackward' && pinValues[index] === '' && index > 0) {
+                    e.preventDefault();
+                    setPinDigit(index - 1, '');
                     pinInputs[index - 1].focus();
                 }
             });
 
-            // Solo permitir números
-            input.addEventListener('beforeinput', (e) => {
-                if (e.data && !/^\d$/.test(e.data)) {
+            input.addEventListener('input', () => {
+                // Se descartan los '*' ya mostrados: lo que quede son los dígitos nuevos
+                const digits = input.value.replace(/\D/g, '');
+
+                if (digits === '') {
+                    setPinDigit(index, ''); // se borró el campo
+                    return;
+                }
+
+                // Soporta escribir un dígito o pegar varios (p. ej. "0902")
+                let last = index;
+                for (let i = 0; i < digits.length && index + i < 4; i++) {
+                    setPinDigit(index + i, digits[i]);
+                    last = index + i;
+                }
+                // Si se sustituyó un solo dígito, el valor visible vuelve a ser '*'
+                input.value = pinValues[index] ? '*' : '';
+
+                if (last < 3) {
+                    pinInputs[last + 1].focus();
+                } else {
+                    input.blur();
+                    checkPin();
+                }
+            });
+
+            // Backspace: borra y vuelve al campo anterior
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && pinValues[index] === '' && index > 0) {
                     e.preventDefault();
+                    setPinDigit(index - 1, '');
+                    pinInputs[index - 1].focus();
                 }
             });
         });
