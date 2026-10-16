@@ -7,7 +7,7 @@
     <meta name="description" content="Guarda y recuerda tus datos importantes">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>digiMem v1.02.1</title>
+    <title>digiMem v1.03</title>
     <style>
         * {
             margin: 0;
@@ -694,6 +694,113 @@
             background-color: yellow;
             font-weight: bold;
         }
+    
+        /* ===== Sincronización con GitHub ===== */
+        #syncToken {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        #syncToken:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .sync-warning {
+            background: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #6d5200;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .sync-help {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 16px;
+        }
+
+        .sync-help summary {
+            cursor: pointer;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .sync-help ol {
+            margin: 8px 0 0 18px;
+            line-height: 1.5;
+        }
+
+        .sync-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: normal;
+            color: #333;
+            margin-bottom: 14px;
+            cursor: pointer;
+        }
+
+        .sync-check input {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .sync-status {
+            font-size: 13px;
+            color: #555;
+            min-height: 18px;
+            margin-bottom: 12px;
+            word-break: break-word;
+        }
+
+        .sync-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .sync-danger {
+            color: #c62828;
+            border-color: #c62828;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%) translateY(20px);
+            background: #323232;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 24px;
+            font-size: 13px;
+            max-width: 90%;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+            z-index: 10000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.error {
+            background: #c62828;
+        }
     </style>
 </head>
 <body>
@@ -714,7 +821,7 @@
 
     <!-- Header fijo -->
     <div class="header">
-        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.02.1</span></h1>
+        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.03</span></h1>
         <button class="menu-button" onclick="toggleMenu()">☰</button>
     </div>
 
@@ -740,9 +847,13 @@
                 <span class="menu-item-icon">📤</span>
                 <span>Importar datos</span>
             </div>
+            <div class="menu-item" onclick="openSyncModal()">
+                <span class="menu-item-icon">☁️</span>
+                <span>Sincronizar con GitHub</span>
+            </div>
             <div style="padding: 20px; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 20px;">
                 <p style="color: #999; font-size: 12px; margin-bottom: 5px;">digiMem</p>
-                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.02.1</p>
+                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.03</p>
             </div>
         </div>
     </div>
@@ -798,26 +909,93 @@
         </div>
     </div>
 
+    <!-- Modal de sincronización con GitHub -->
+    <div class="modal" id="syncModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>☁️ Sincronizar con GitHub</h2>
+                <button class="modal-close" onclick="closeSyncModal()">×</button>
+            </div>
+
+            <div class="sync-warning">
+                🔒 Usa un repositorio <strong>privado</strong> solo para los datos. Si es público, cualquiera podrá leerlos.
+                El token se guarda en este dispositivo.
+            </div>
+
+            <details class="sync-help">
+                <summary>¿Cómo obtengo el token?</summary>
+                <ol>
+                    <li>Crea un repositorio <strong>privado</strong> en GitHub (p. ej. <em>digimem-datos</em>).</li>
+                    <li>GitHub → Settings → Developer settings → Personal access tokens → <em>Fine-grained tokens</em> → Generate new token.</li>
+                    <li>En <em>Repository access</em> elige <em>Only select repositories</em> y marca ese repositorio.</li>
+                    <li>En <em>Permissions → Repository</em> pon <strong>Contents: Read and write</strong>.</li>
+                    <li>Copia el token y pégalo aquí.</li>
+                </ol>
+            </details>
+
+            <div class="form-group">
+                <label for="syncOwner">Usuario u organización</label>
+                <input type="text" id="syncOwner" placeholder="tu-usuario" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+            <div class="form-group">
+                <label for="syncRepo">Repositorio</label>
+                <input type="text" id="syncRepo" placeholder="digimem-datos" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+            <div class="form-group">
+                <label for="syncBranch">Rama</label>
+                <input type="text" id="syncBranch" placeholder="main" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+            <div class="form-group">
+                <label for="syncPath">Archivo de datos</label>
+                <input type="text" id="syncPath" placeholder="digiMem-data.json" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+            <div class="form-group">
+                <label for="syncToken">Token de acceso</label>
+                <input type="password" id="syncToken" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+
+            <label class="sync-check">
+                <input type="checkbox" id="syncAuto" checked>
+                <span>Sincronizar automáticamente (al abrir la app y tras cada cambio)</span>
+            </label>
+
+            <div class="sync-status" id="syncStatus"></div>
+
+            <button class="btn" onclick="saveSyncConfig()">💾 Guardar y sincronizar</button>
+            <div class="sync-actions">
+                <button class="btn-secondary" onclick="GitSync.sync(true)">🔄 Sincronizar ahora</button>
+                <button class="btn-secondary sync-danger" onclick="clearSyncConfig()">🗑️ Borrar configuración</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
     <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="display: none;">
 
     <script>
         // Versión de la aplicación
-        const APP_VERSION = 'v1.02.1';
+        const APP_VERSION = 'v1.03';
         
         // Sistema de almacenamiento usando localStorage
         class MemoryStorage {
             constructor() {
                 this.storageKey = 'personalMemory';
+                this.deletedKey = 'personalMemoryDeleted';
                 this.loadData();
             }
 
             loadData() {
                 const stored = localStorage.getItem(this.storageKey);
                 this.data = stored ? JSON.parse(stored) : [];
+                const storedDeleted = localStorage.getItem(this.deletedKey);
+                this.deleted = storedDeleted ? JSON.parse(storedDeleted) : [];
             }
 
-            saveData() {
+            saveData(silent = false) {
                 localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+                localStorage.setItem(this.deletedKey, JSON.stringify(this.deleted));
+                if (!silent) GitSync.schedule();
             }
 
             addItem(topic, content) {
@@ -825,8 +1003,10 @@
                     id: Date.now(),
                     topic: topic,
                     content: content,
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
+                    updatedAt: Date.now()
                 };
+                this.deleted = this.deleted.filter(d => d.id !== item.id);
                 this.data.unshift(item);
                 this.saveData();
                 return item;
@@ -834,6 +1014,8 @@
 
             deleteItem(id) {
                 this.data = this.data.filter(item => item.id !== id);
+                this.deleted = this.deleted.filter(d => d.id !== id);
+                this.deleted.push({ id: id, deletedAt: Date.now() });
                 this.saveData();
             }
 
@@ -1006,6 +1188,7 @@
                     // PIN correcto
                     loginScreen.classList.add('hidden');
                     pinError.textContent = '';
+                    if (GitSync.cfg.auto && GitSync.configured()) GitSync.sync(false);
                     // Limpiar inputs
                     pinInputs.forEach(input => input.value = '');
                 } else {
@@ -1315,6 +1498,7 @@
             const item = storage.data.find(i => i.id === id);
             if (item) {
                 item.content = newContent;
+                item.updatedAt = Date.now();
                 storage.saveData();
                 
                 // Mostrar mensaje de éxito
@@ -1366,7 +1550,10 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const importedData = JSON.parse(e.target.result);
+                    let importedData = JSON.parse(e.target.result);
+                    if (importedData && !Array.isArray(importedData) && Array.isArray(importedData.items)) {
+                        importedData = importedData.items;
+                    }
                     
                     if (!Array.isArray(importedData)) {
                         throw new Error('Formato de archivo inválido');
@@ -1376,12 +1563,20 @@
                     
                     if (confirm(confirmMsg)) {
                         // Reemplazar
+                        const now = Date.now();
+                        const keep = new Set(importedData.map(i => i.id));
+                        storage.data.forEach(i => {
+                            if (!keep.has(i.id)) storage.deleted.push({ id: i.id, deletedAt: now });
+                        });
+                        storage.deleted = storage.deleted.filter(d => !keep.has(d.id));
+                        importedData.forEach(i => { i.updatedAt = now; });
                         storage.data = importedData;
                     } else {
                         // Agregar
                         importedData.forEach(item => {
                             // Asignar nuevos IDs para evitar conflictos
                             item.id = Date.now() + Math.random();
+                            item.updatedAt = Date.now();
                             storage.data.unshift(item);
                         });
                     }
@@ -1407,6 +1602,382 @@
             // Limpiar el input
             event.target.value = '';
         }
+
+        // ===== Sincronización con GitHub =====
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.toggle('error', isError);
+            toast.classList.add('show');
+            clearTimeout(showToast.timer);
+            showToast.timer = setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        function utf8ToBase64(str) {
+            const bytes = new TextEncoder().encode(str);
+            let bin = '';
+            const chunk = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunk) {
+                bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+            }
+            return btoa(bin);
+        }
+
+        function base64ToUtf8(b64) {
+            const bin = atob(b64.replace(/\s/g, ''));
+            const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+            return new TextDecoder().decode(bytes);
+        }
+
+        function itemTimestamp(item) {
+            return item.updatedAt || Date.parse(item.date) || 0;
+        }
+
+        // Fusiona dos bases de datos: gana la versión más reciente de cada dato.
+        // Un borrado prevalece salvo que el dato se haya modificado después.
+        function mergeDatabases(localItems, localDeleted, remoteItems, remoteDeleted) {
+            const items = new Map();
+            [...localItems, ...remoteItems].forEach(item => {
+                const current = items.get(item.id);
+                if (!current || itemTimestamp(item) > itemTimestamp(current)) {
+                    items.set(item.id, item);
+                }
+            });
+
+            const tombstones = new Map();
+            [...localDeleted, ...remoteDeleted].forEach(t => {
+                const current = tombstones.get(t.id);
+                if (!current || t.deletedAt > current.deletedAt) {
+                    tombstones.set(t.id, t);
+                }
+            });
+
+            tombstones.forEach((t, id) => {
+                const item = items.get(id);
+                if (item && itemTimestamp(item) > t.deletedAt) {
+                    tombstones.delete(id);
+                } else {
+                    items.delete(id);
+                }
+            });
+
+            return {
+                items: Array.from(items.values()).sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0)),
+                deleted: Array.from(tombstones.values())
+            };
+        }
+
+        // Representación estable para comparar bases de datos
+        function canonicalDb(items, deleted) {
+            const byId = (a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+            const sortKeys = (key, value) => (value && typeof value === 'object' && !Array.isArray(value))
+                ? Object.keys(value).sort().reduce((o, k) => { o[k] = value[k]; return o; }, {})
+                : value;
+            return JSON.stringify({ items: [...items].sort(byId), deleted: [...deleted].sort(byId) }, sortKeys);
+        }
+
+        function parseRemoteDb(text) {
+            if (!text.trim()) return { items: [], deleted: [] };
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                throw new Error('El archivo remoto no es un JSON válido');
+            }
+            if (Array.isArray(data)) return { items: data, deleted: [] };
+            if (data && Array.isArray(data.items)) {
+                return { items: data.items, deleted: Array.isArray(data.deleted) ? data.deleted : [] };
+            }
+            throw new Error('El archivo remoto no tiene el formato de digiMem');
+        }
+
+        async function githubError(res) {
+            let detail = '';
+            try { detail = (await res.json()).message || ''; } catch (e) { /* sin cuerpo */ }
+            const known = {
+                401: 'Token no válido o caducado',
+                403: 'Sin permisos suficientes o límite de la API alcanzado',
+                404: 'Repositorio, rama o ruta no encontrados',
+                409: 'Conflicto de versión',
+                422: 'Petición rechazada por GitHub'
+            };
+            const err = new Error((known[res.status] || `Error ${res.status}`) + (detail ? ` (${detail})` : ''));
+            err.status = res.status;
+            return err;
+        }
+
+        const GitSync = {
+            CFG_KEY: 'digiMemGithub',
+            cfg: { owner: '', repo: '', branch: 'main', path: 'digiMem-data.json', token: '', auto: true, lastSync: null },
+            busy: false,
+            pending: false,
+            timer: null,
+            lastRun: 0,
+
+            load() {
+                try {
+                    Object.assign(this.cfg, JSON.parse(localStorage.getItem(this.CFG_KEY) || '{}'));
+                } catch (e) { /* configuración corrupta: se ignora */ }
+            },
+
+            persist() {
+                localStorage.setItem(this.CFG_KEY, JSON.stringify(this.cfg));
+            },
+
+            configured() {
+                const c = this.cfg;
+                return !!(c.owner && c.repo && c.token && c.path);
+            },
+
+            headers(extra = {}) {
+                return Object.assign({
+                    'Authorization': 'Bearer ' + this.cfg.token,
+                    'Accept': 'application/vnd.github+json'
+                }, extra);
+            },
+
+            repoUrl() {
+                return `https://api.github.com/repos/${encodeURIComponent(this.cfg.owner)}/${encodeURIComponent(this.cfg.repo)}`;
+            },
+
+            fileUrl() {
+                return this.repoUrl() + '/contents/' + this.cfg.path.split('/').map(encodeURIComponent).join('/');
+            },
+
+            async checkRepo() {
+                const res = await fetch(this.repoUrl(), { headers: this.headers(), cache: 'no-store' });
+                if (!res.ok) throw await githubError(res);
+                return res.json();
+            },
+
+            async fetchRemote() {
+                const url = `${this.fileUrl()}?ref=${encodeURIComponent(this.cfg.branch)}`;
+                const res = await fetch(url, { headers: this.headers(), cache: 'no-store' });
+                if (res.status === 404) return null;
+                if (!res.ok) throw await githubError(res);
+                const meta = await res.json();
+
+                let text;
+                if (meta.content) {
+                    text = base64ToUtf8(meta.content);
+                } else {
+                    // Archivos de más de 1 MB: la API no devuelve el contenido en base64
+                    const raw = await fetch(url, {
+                        headers: this.headers({ 'Accept': 'application/vnd.github.raw+json' }),
+                        cache: 'no-store'
+                    });
+                    if (!raw.ok) throw await githubError(raw);
+                    text = await raw.text();
+                }
+                return { sha: meta.sha, db: parseRemoteDb(text) };
+            },
+
+            async push(db, sha) {
+                const body = {
+                    message: 'digiMem: sincronización ' + new Date().toISOString(),
+                    content: utf8ToBase64(JSON.stringify(db, null, 2)),
+                    branch: this.cfg.branch
+                };
+                if (sha) body.sha = sha;
+                const res = await fetch(this.fileUrl(), {
+                    method: 'PUT',
+                    headers: this.headers({ 'Content-Type': 'application/json' }),
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) {
+                    const err = await githubError(res);
+                    err.conflict = (res.status === 409 || res.status === 422);
+                    throw err;
+                }
+            },
+
+            // Programa una sincronización automática tras un cambio local
+            schedule() {
+                if (!this.cfg.auto || !this.configured()) return;
+                clearTimeout(this.timer);
+                this.timer = setTimeout(() => this.sync(false), 4000);
+            },
+
+            async sync(manual = false) {
+                if (!this.configured()) {
+                    if (manual) setSyncStatus('Configura primero el repositorio y el token', true);
+                    return false;
+                }
+                if (this.busy) {
+                    this.pending = true;
+                    return false;
+                }
+                if (!navigator.onLine) {
+                    setSyncStatus('Sin conexión. Se sincronizará al reconectar.', true);
+                    if (manual) showToast('Sin conexión', true);
+                    return false;
+                }
+
+                this.busy = true;
+                setSyncStatus('⏳ Sincronizando…');
+                try {
+                    let changedLocal = false;
+                    for (let attempt = 0; attempt < 3; attempt++) {
+                        const remote = await this.fetchRemote();
+                        const merged = remote
+                            ? mergeDatabases(storage.data, storage.deleted, remote.db.items, remote.db.deleted)
+                            : { items: [...storage.data], deleted: [...storage.deleted] };
+
+                        if (canonicalDb(merged.items, merged.deleted) !== canonicalDb(storage.data, storage.deleted)) {
+                            storage.data = merged.items;
+                            storage.deleted = merged.deleted;
+                            storage.saveData(true);
+                            changedLocal = true;
+                        }
+
+                        const needsPush = !remote ||
+                            canonicalDb(merged.items, merged.deleted) !== canonicalDb(remote.db.items, remote.db.deleted);
+                        if (!needsPush) break;
+
+                        try {
+                            await this.push({
+                                app: 'digiMem',
+                                schema: 1,
+                                updatedAt: new Date().toISOString(),
+                                items: merged.items,
+                                deleted: merged.deleted
+                            }, remote ? remote.sha : null);
+                            break;
+                        } catch (e) {
+                            if (e.conflict && attempt < 2) continue; // alguien escribió entre medias: reintentar
+                            throw e;
+                        }
+                    }
+
+                    this.cfg.lastSync = new Date().toISOString();
+                    this.persist();
+                    setSyncStatus('✅ Sincronizado: ' + new Date(this.cfg.lastSync).toLocaleString('es-ES'));
+                    if (manual) showToast('☁️ Sincronización completada');
+                    if (changedLocal) refreshAfterSync();
+                    return true;
+                } catch (e) {
+                    console.error('Error de sincronización:', e);
+                    setSyncStatus('❌ ' + e.message, true);
+                    showToast('⚠️ Sincronización fallida: ' + e.message, true);
+                    return false;
+                } finally {
+                    this.busy = false;
+                    this.lastRun = Date.now();
+                    if (this.pending) {
+                        this.pending = false;
+                        this.schedule();
+                    }
+                }
+            }
+        };
+        GitSync.load();
+
+        function refreshAfterSync() {
+            updateStats();
+            if (document.querySelector('.result-item.edit-mode')) return; // no interrumpir una edición
+            const query = searchInput.value;
+            if (query.trim()) displayResults(storage.search(query), query);
+        }
+
+        // ----- Interfaz de sincronización -----
+        const syncModal = document.getElementById('syncModal');
+        const syncFields = {
+            owner: document.getElementById('syncOwner'),
+            repo: document.getElementById('syncRepo'),
+            branch: document.getElementById('syncBranch'),
+            path: document.getElementById('syncPath'),
+            token: document.getElementById('syncToken'),
+            auto: document.getElementById('syncAuto')
+        };
+        const syncStatus = document.getElementById('syncStatus');
+
+        function setSyncStatus(text, isError = false) {
+            syncStatus.textContent = text;
+            syncStatus.style.color = isError ? '#c62828' : '#555';
+        }
+
+        function openSyncModal() {
+            closeMenu();
+            const c = GitSync.cfg;
+            syncFields.owner.value = c.owner;
+            syncFields.repo.value = c.repo;
+            syncFields.branch.value = c.branch;
+            syncFields.path.value = c.path;
+            syncFields.token.value = '';
+            syncFields.token.placeholder = c.token ? '•••••••• (guardado; vacío para conservarlo)' : 'github_pat_...';
+            syncFields.auto.checked = c.auto;
+            if (c.lastSync) {
+                setSyncStatus('Última sincronización: ' + new Date(c.lastSync).toLocaleString('es-ES'));
+            } else {
+                setSyncStatus(GitSync.configured() ? 'Aún sin sincronizar' : 'Sin configurar');
+            }
+            syncModal.classList.add('active');
+        }
+
+        function closeSyncModal() {
+            syncModal.classList.remove('active');
+        }
+
+        async function saveSyncConfig() {
+            const candidate = {
+                ...GitSync.cfg,
+                owner: syncFields.owner.value.trim(),
+                repo: syncFields.repo.value.trim(),
+                branch: syncFields.branch.value.trim() || 'main',
+                path: (syncFields.path.value.trim() || 'digiMem-data.json').replace(/^\/+/, ''),
+                token: syncFields.token.value.trim() || GitSync.cfg.token,
+                auto: syncFields.auto.checked
+            };
+            if (!candidate.owner || !candidate.repo || !candidate.token) {
+                setSyncStatus('Completa usuario, repositorio y token', true);
+                return;
+            }
+
+            const previous = GitSync.cfg;
+            GitSync.cfg = candidate;
+            setSyncStatus('⏳ Comprobando acceso al repositorio…');
+            try {
+                const info = await GitSync.checkRepo();
+                if (!info.private) {
+                    const ok = confirm('⚠️ Este repositorio es PÚBLICO: cualquiera podría leer tus datos.\n\n¿Continuar de todos modos?');
+                    if (!ok) {
+                        GitSync.cfg = previous;
+                        setSyncStatus('Configuración cancelada', true);
+                        return;
+                    }
+                }
+            } catch (e) {
+                GitSync.cfg = previous;
+                setSyncStatus('❌ ' + e.message, true);
+                return;
+            }
+
+            GitSync.persist();
+            await GitSync.sync(true);
+        }
+
+        function clearSyncConfig() {
+            if (!confirm('¿Borrar la configuración y el token de este dispositivo?\n\nTus datos locales y los del repositorio no se modifican.')) return;
+            clearTimeout(GitSync.timer);
+            localStorage.removeItem(GitSync.CFG_KEY);
+            GitSync.cfg = { owner: '', repo: '', branch: 'main', path: 'digiMem-data.json', token: '', auto: true, lastSync: null };
+            openSyncModal();
+        }
+
+        syncModal.addEventListener('click', (event) => {
+            if (event.target === syncModal) closeSyncModal();
+        });
+
+        // Sincronización automática: al reconectar y al volver a la app
+        window.addEventListener('online', () => GitSync.schedule());
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' &&
+                GitSync.cfg.auto && GitSync.configured() &&
+                loginScreen.classList.contains('hidden') &&
+                Date.now() - GitSync.lastRun > 60000) {
+                GitSync.sync(false);
+            }
+        });
 
         // Cargar datos iniciales
         updateStats();

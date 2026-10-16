@@ -4,6 +4,37 @@ Historial de cambios y versiones de la aplicación.
 
 ---
 
+## [v1.03] - 2026-10-16
+
+### ☁️ Sincronización con GitHub
+
+**Novedad:** la base de datos puede guardarse en un repositorio de GitHub y sincronizarse entre dispositivos.
+
+**Cómo funciona:**
+- Menú ☰ → **Sincronizar con GitHub** (usuario, repositorio, rama, archivo y token)
+- Usa la API de GitHub (Contents) con un *fine-grained token* limitado a un solo repositorio
+- Sincronización **automática**: al desbloquear con el PIN, 4 s después de cada cambio, al recuperar la conexión y al volver a la app
+- Botón **Sincronizar ahora** para hacerlo manualmente
+
+**Fusión de datos (varios dispositivos):**
+- Cada dato guarda su fecha de modificación (`updatedAt`); gana la versión más reciente
+- Los borrados se registran, de modo que un dato eliminado en un dispositivo no reaparece en otro
+- Si se edita un dato después de que otro dispositivo lo borrara, se conserva
+- Conflictos de versión (409/422) se reintentan automáticamente
+- No se generan commits si no hay cambios
+
+**Seguridad:**
+- Aviso y confirmación si el repositorio es **público**
+- El token se guarda solo en este dispositivo y se puede borrar desde la misma pantalla
+- Compatible con archivos antiguos (array JSON) y con importar/exportar
+
+### 🔧 Service Worker
+- Estrategia *red primero* con respaldo offline: las actualizaciones de la app llegan sin vaciar la caché
+- No intercepta peticiones a otros dominios (api.github.com)
+- Caché versionada (`digimem-v1.03`) e iconos incluidos para uso offline
+
+---
+
 ## [v1.02.1] - 2026-02-09
 
 ### 🐛 Corrección crítica (Hotfix)
