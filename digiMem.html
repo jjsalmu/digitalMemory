@@ -7,7 +7,7 @@
     <meta name="description" content="Guarda y recuerda tus datos importantes">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>digiMem v1.03.1</title>
+    <title>digiMem v1.04</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 5px;
+            padding: 0;
             padding-top: 80px;
         }
 
@@ -152,7 +152,7 @@
         .container {
             max-width: 100%;
             margin: 0 auto;
-            padding: 0 5px;
+            padding: 0;
         }
 
         .modal {
@@ -299,7 +299,7 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 16px;
+            margin-top: 8px;
             transition: all 0.3s;
             width: 100%;
             justify-content: center;
@@ -322,7 +322,9 @@
         }
 
         #resultsCard {
-            padding: 8px;
+            padding: 3px;
+            margin: 0 3px 12px;
+            border-radius: 10px;
         }
 
         h2 {
@@ -387,10 +389,9 @@
         }
 
         .search-section {
-            margin-bottom: 20px;
+            width: calc(100% - 12px);
             max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 0 auto 10px;
         }
 
         .search-box {
@@ -489,16 +490,16 @@
 
         .result-item {
             background: #f8f9fa;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            border-left: 4px solid #667eea;
+            padding: 3px 3px 3px 5px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            border-left: 3px solid #667eea;
         }
 
         .result-item h3 {
-            font-size: 18px;
+            font-size: 16px;
             color: #333;
-            margin-bottom: 16px;
+            margin-bottom: 4px;
             font-weight: 600;
         }
 
@@ -509,20 +510,19 @@
             white-space: pre-wrap;
             word-wrap: break-word;
             background: white;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 4px 5px;
+            border-radius: 4px;
             border: 1px solid #e0e0e0;
-            min-height: 150px;
+            min-height: 60px;
             font-family: 'Courier New', Courier, monospace;
             width: 100%;
             box-sizing: border-box;
         }
 
         .result-item .date {
-            font-size: 12px;
+            font-size: 11px;
             color: #999;
-            margin-top: 12px;
-            margin-bottom: 12px;
+            margin: 4px 0 0;
         }
 
         .delete-btn {
@@ -603,8 +603,8 @@
 
         .edit-buttons {
             display: flex;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 6px;
+            margin-top: 6px;
             flex-wrap: wrap;
         }
 
@@ -646,22 +646,18 @@
         }
 
         textarea.edit-textarea {
+            display: block;
             width: 100%;
-            min-height: 150px;
-            margin-top: 8px;
-            margin-bottom: 8px;
-            padding: 15px;
-            border: 2px solid #667eea;
-            border-radius: 8px;
+            min-height: 60px;
+            margin: 0;
+            padding: 4px 5px;
+            border: 1px solid #667eea;
+            border-radius: 4px;
             font-family: 'Courier New', Courier, monospace;
             font-size: 15px;
+            line-height: 1;
             resize: vertical;
-            line-height: 1.8;
-        }
-            border-radius: 4px;
-            font-family: inherit;
-            font-size: 14px;
-            resize: vertical;
+            box-sizing: border-box;
         }
 
         input[type="file"] {
@@ -820,7 +816,7 @@
 
     <!-- Header fijo -->
     <div class="header">
-        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.03.1</span></h1>
+        <h1>💾 digiMem <span style="font-size: 14px; opacity: 0.8; font-weight: normal;">v1.04</span></h1>
         <button class="menu-button" onclick="toggleMenu()">☰</button>
     </div>
 
@@ -852,7 +848,7 @@
             </div>
             <div style="padding: 20px; text-align: center; border-top: 1px solid #f0f0f0; margin-top: 20px;">
                 <p style="color: #999; font-size: 12px; margin-bottom: 5px;">digiMem</p>
-                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.03.1</p>
+                <p style="color: #667eea; font-size: 14px; font-weight: 600;" id="menuVersion">v1.04</p>
             </div>
         </div>
     </div>
@@ -974,7 +970,7 @@
 
     <script>
         // Versión de la aplicación
-        const APP_VERSION = 'v1.03.1';
+        const APP_VERSION = 'v1.04';
         
         // Sistema de almacenamiento usando localStorage
         class MemoryStorage {
@@ -1313,20 +1309,31 @@
             });
         }
 
-        // Función para resaltar texto de búsqueda
-        function highlightText(text, query) {
-            if (!query.trim()) return text;
-            
-            const regex = new RegExp(`(${query})`, 'gi');
-            return text.replace(regex, '<span class="highlight">$1</span>');
+        // Escapa HTML para mostrar el contenido tal cual se escribió
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
         }
 
-        // Función para resaltar coincidencias en sugerencias
+        // Resalta las coincidencias sin romper el HTML ni fallar con caracteres especiales como ( o *
+        function highlightWith(text, query, cssClass) {
+            if (!query.trim()) return escapeHtml(text);
+            const pattern = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return String(text)
+                .split(new RegExp('(' + pattern + ')', 'gi'))
+                .map((part, i) => i % 2 ? '<span class="' + cssClass + '">' + escapeHtml(part) + '</span>' : escapeHtml(part))
+                .join('');
+        }
+
+        function highlightText(text, query) {
+            return highlightWith(text, query, 'highlight');
+        }
+
         function highlightMatches(text, query) {
-            if (!query.trim()) return text;
-            
-            const regex = new RegExp(`(${query})`, 'gi');
-            return text.replace(regex, '<span class="suggestion-match">$1</span>');
+            return highlightWith(text, query, 'suggestion-match');
         }
 
         // Función para mostrar sugerencias
@@ -1385,20 +1392,36 @@
             }
         });
 
+        // Vista actual: datos que se están mostrando y término de resaltado.
+        // Permite redibujar exactamente lo mismo tras editar, cancelar o borrar,
+        // sin volver a buscar (que traería datos no seleccionados).
+        let currentView = { ids: [], query: '' };
+
+        function refreshCurrentView() {
+            const items = currentView.ids.map(id => storage.findById(id)).filter(Boolean);
+            if (items.length === 0) {
+                closeSearchResults();
+                return;
+            }
+            displayResults(items, currentView.query);
+        }
+
         // Función para mostrar resultados
         function displayResults(items, searchQuery = '') {
             const resultsCard = document.getElementById('resultsCard');
-            
+
             // Si no hay búsqueda, ocultar resultados
             if (!searchQuery.trim()) {
+                currentView = { ids: [], query: '' };
                 resultsCard.classList.add('hidden');
                 closeContentBtn.classList.add('hidden');
                 return;
             }
-            
+
+            currentView = { ids: items.map(item => item.id), query: searchQuery };
             resultsCard.classList.remove('hidden');
             closeContentBtn.classList.remove('hidden');
-            
+
             if (items.length === 0) {
                 resultsDiv.innerHTML = `
                     <div class="empty-state">
@@ -1407,7 +1430,7 @@
                             <line x1="12" y1="8" x2="12" y2="12"></line>
                             <line x1="12" y1="16" x2="12.01" y2="16"></line>
                         </svg>
-                        <p>No se encontraron resultados para "${searchQuery}"</p>
+                        <p>No se encontraron resultados para "${escapeHtml(searchQuery)}"</p>
                     </div>
                 `;
                 return;
@@ -1417,7 +1440,7 @@
                 <div class="result-item" id="item-${item.id}">
                     <h3>${highlightText(item.topic, searchQuery)}</h3>
                     <p id="content-${item.id}">${highlightText(item.content, searchQuery)}</p>
-                    <textarea class="edit-textarea hidden" id="edit-${item.id}">${item.content}</textarea>
+                    <textarea class="edit-textarea hidden" id="edit-${item.id}" oninput="autoResizeTextarea(this)">${escapeHtml(item.content)}</textarea>
                     <div class="date" id="date-${item.id}">${formatDate(item.date)}</div>
                     <div class="edit-buttons" id="buttons-${item.id}">
                         <button class="btn-small btn-edit" onclick="editItem(${item.id})">✏️ Editar</button>
@@ -1433,6 +1456,7 @@
 
         // Función para cerrar resultados de búsqueda
         function closeSearchResults() {
+            currentView = { ids: [], query: '' };
             searchInput.value = '';
             suggestionsDropdown.classList.remove('active');
             document.getElementById('resultsCard').classList.add('hidden');
@@ -1493,11 +1517,16 @@
         function deleteItem(id) {
             if (confirm('¿Estás seguro de que quieres eliminar este dato?')) {
                 storage.deleteItem(id);
-                const query = searchInput.value;
-                const results = storage.search(query);
-                displayResults(results, query);
+                refreshCurrentView(); // redibuja lo que seguía mostrado (o cierra si no queda nada)
                 updateStats();
             }
+        }
+
+        // Ajusta el alto del cuadro de edición a su contenido (sin scroll interno)
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto';
+            const borders = textarea.offsetHeight - textarea.clientHeight;
+            textarea.style.height = (textarea.scrollHeight + borders) + 'px';
         }
 
         // Editar dato
@@ -1508,13 +1537,14 @@
             const dateDiv = document.getElementById(`date-${id}`);
             const normalButtons = document.getElementById(`buttons-${id}`);
             const saveButtons = document.getElementById(`save-buttons-${id}`);
-            
+
             itemDiv.classList.add('edit-mode');
             contentP.classList.add('hidden');
             editTextarea.classList.remove('hidden');
             dateDiv.classList.add('hidden');
             normalButtons.classList.add('hidden');
             saveButtons.classList.remove('hidden');
+            autoResizeTextarea(editTextarea);
             editTextarea.focus();
         }
 
@@ -1522,38 +1552,28 @@
         function saveEdit(id) {
             const editTextarea = document.getElementById(`edit-${id}`);
             const newContent = editTextarea.value.trim();
-            
+
             if (!newContent) {
                 alert('El contenido no puede estar vacío');
                 return;
             }
-            
+
             // Actualizar en el almacenamiento
             const item = storage.data.find(i => i.id === id);
             if (item) {
                 item.content = newContent;
                 item.updatedAt = Date.now();
                 storage.saveData();
-                
-                // Mostrar mensaje de éxito
-                successMessage.textContent = '✓ Dato actualizado correctamente';
-                successMessage.style.display = 'block';
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 3000);
-                
-                // Refrescar vista
-                const query = searchInput.value;
-                const results = storage.search(query);
-                displayResults(results, query);
+                showToast('✓ Dato actualizado');
+
+                // Redibujar solo los datos que se estaban mostrando
+                refreshCurrentView();
             }
         }
 
         // Cancelar edición
         function cancelEdit(id) {
-            const query = searchInput.value;
-            const results = storage.search(query);
-            displayResults(results, query);
+            refreshCurrentView();
         }
 
         // Exportar datos
@@ -1909,8 +1929,7 @@
         function refreshAfterSync() {
             updateStats();
             if (document.querySelector('.result-item.edit-mode')) return; // no interrumpir una edición
-            const query = searchInput.value;
-            if (query.trim()) displayResults(storage.search(query), query);
+            if (currentView.ids.length > 0) refreshCurrentView();
         }
 
         // ----- Interfaz de sincronización -----
@@ -2019,11 +2038,48 @@
         // Ocultar la tarjeta de resultados inicialmente
         document.getElementById('resultsCard').classList.add('hidden');
 
+        // ===== Actualización a la última versión publicada en GitHub =====
+        let lastUpdateCheck = 0;
+
+        // Descarga la página saltándose cualquier caché, compara la versión y,
+        // si hay una más nueva, vacía las cachés y recarga con la versión nueva.
+        async function checkForUpdate() {
+            if (!navigator.onLine) return;
+            lastUpdateCheck = Date.now();
+            try {
+                const res = await fetch(location.origin + location.pathname + '?_=' + Date.now(), { cache: 'no-store' });
+                if (!res.ok) return;
+                const match = (await res.text()).match(/const APP_VERSION = '([^']+)'/);
+                if (!match || match[1] === APP_VERSION) return;
+
+                // No recargar si hay una edición o un formulario abierto: se reintentará más tarde
+                if (document.querySelector('.result-item.edit-mode') || document.querySelector('.modal.active')) return;
+                // Evita bucles si la red de GitHub Pages aún sirviera la versión anterior
+                if (sessionStorage.getItem('digiMemUpdateTried') === match[1]) return;
+                sessionStorage.setItem('digiMemUpdateTried', match[1]);
+
+                if ('caches' in window) {
+                    for (const key of await caches.keys()) await caches.delete(key);
+                }
+                location.replace(location.pathname + '?v=' + encodeURIComponent(match[1]));
+            } catch (e) {
+                /* sin conexión o bloqueado: se mantiene la versión actual */
+            }
+        }
+
+        window.addEventListener('load', checkForUpdate);
+        // Al volver a la app instalada (no se "abre" de nuevo, solo se reanuda)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && Date.now() - lastUpdateCheck > 5 * 60 * 1000) {
+                checkForUpdate();
+            }
+        });
+
         // Registrar Service Worker para PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registrado'))
+                navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+                    .then(reg => reg.update())
                     .catch(err => console.log('Error al registrar SW:', err));
             });
         }

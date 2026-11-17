@@ -4,6 +4,34 @@ Historial de cambios y versiones de la aplicación.
 
 ---
 
+## [v1.04] - 2026-11-17
+
+### 📐 Cuadro de datos a todo el ancho
+- Consulta y edición ocupan casi todo el ancho de la pantalla: márgenes y paddings reducidos al mínimo
+  (aprox. 43 px → 20 px por lado entre el borde de la pantalla y el texto)
+- El cuadro de edición tiene exactamente la misma caja que el de consulta (mismos márgenes, fuente y borde)
+- **Interlineado de edición: 1** (antes 1.8)
+- El cuadro de edición ajusta su alto al contenido, sin scroll interno
+- Botones, fecha y títulos con espaciado compacto
+
+### 🐛 Corrección: aparecían datos no seleccionados tras editar
+**Causa:** al guardar, cancelar o borrar, la app volvía a buscar con el texto del buscador y mostraba *todos* los datos que coincidían, no solo el seleccionado.
+**Solución:** la app recuerda qué datos se estaban mostrando y redibuja únicamente esos. Si se borra el único dato mostrado, se cierran los resultados. La sincronización tampoco altera lo que se está viendo.
+
+### 🔄 Actualización forzada a la última versión de GitHub
+- Al abrir la app (y al reanudarla pasados 5 minutos) se descarga la página saltándose toda caché y se compara su versión; si hay una más nueva, se vacían las cachés y se recarga
+- No recarga si hay una edición o un formulario abierto, ni entra en bucle si GitHub aún sirviera la versión anterior
+- El Service Worker revalida siempre con el servidor (`cache: 'no-cache'`), porque GitHub Pages sirve los archivos con una caché de unos 10 minutos
+- Se registra con `updateViaCache: 'none'` y se pide comprobar actualizaciones en cada apertura
+
+### 🛠️ Otras correcciones
+- Aviso visible "✓ Dato actualizado" al guardar (antes quedaba oculto)
+- Títulos con caracteres como `(` `)` `*` ya no provocan error al buscar o seleccionar
+- El contenido con símbolos HTML (`<`, `&`, `</textarea>`) se muestra tal cual se escribió
+- Eliminadas unas declaraciones CSS sueltas que invalidaban la regla siguiente
+
+---
+
 ## [v1.03.1] - 2026-10-16
 
 ### 🐛 Corrección: PIN oculto con asteriscos

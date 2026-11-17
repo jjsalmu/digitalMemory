@@ -1,4 +1,4 @@
-const CACHE_NAME = 'digimem-v1.03';
+const CACHE_NAME = 'digimem-v1.04';
 const urlsToCache = [
   'digiMem.html',
   'manifest.json',
@@ -6,11 +6,13 @@ const urlsToCache = [
   'icon-512.png'
 ];
 
-// Instalación: guardar los archivos de la app
+// Instalación: guardar la última versión de los archivos (saltando la caché HTTP)
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+      .then(cache => Promise.all(
+        urlsToCache.map(url => cache.add(new Request(url, { cache: 'reload' })))
+      ))
       .then(() => self.skipWaiting())
   );
 });
@@ -26,15 +28,15 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Peticiones: red primero (así siempre recibes la última versión) y caché como respaldo offline.
-// Las peticiones a otros dominios (p. ej. api.github.com) no se interceptan.
+// Peticiones: red primero, revalidando siempre con el servidor (cache: 'no-cache'),
+// y caché solo como respaldo sin conexión. No intercepta otros dominios (api.github.com).
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
   if (new URL(request.url).origin !== self.location.origin) return;
 
   event.respondWith(
-    fetch(request)
+    fetch(request.url, { cache: 'no-cache' })
       .then(response => {
         if (response.ok) {
           const copy = response.clone();
