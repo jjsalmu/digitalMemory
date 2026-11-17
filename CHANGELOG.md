@@ -4,6 +4,20 @@ Historial de cambios y versiones de la aplicación.
 
 ---
 
+## [v1.04.1] - 2026-11-17
+
+### 🐛 Corrección: segundo cuadro duplicado al consultar un dato
+
+**Problema:** al consultar un dato aparecía debajo un segundo cuadro con scroll y el mismo contenido.
+
+**Causa:** en v1.04 el cuadro de edición (`textarea`) recibió `display: block`. Esa regla tiene mayor especificidad que `.hidden`, así que el cuadro de edición, que debe estar oculto en modo consulta, se mostraba siempre.
+
+**Solución:** `.hidden` ahora usa `display: none !important`, de modo que ninguna otra regla puede volver a mostrar un elemento oculto.
+
+**Verificación:** comprobador de cascada CSS (especificidad, `!important` y orden) sobre los 8 elementos que la app oculta y los 4 estados visibles. Reproducía el fallo en v1.04 (único elemento afectado: el cuadro de edición) y pasa en v1.04.1.
+
+---
+
 ## [v1.04] - 2026-11-17
 
 ### 📐 Cuadro de datos a todo el ancho
